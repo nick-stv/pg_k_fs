@@ -1,0 +1,46 @@
+<include>
+    <context name="public">
+
+        <extension name="call_debug" continue="true">
+            <condition>
+                <action application="info"/>
+            </condition>
+        </extension>
+
+##Confcall
+       <extension name="confcall-7777" continue="true">
+#       	    <condition field= "destination_number" expression="^7777$" break="on-true">
+#		        <condition field= "${sip_from_user}" expression="^(133|134)$" break="never"/>
+#    			      <action application= "answer" />
+#			          <action application= "conference" data="7777@default_mod/moderator" />
+#			          <action application= "hangup" />
+#    		    </condition>
+		        <condition field="destination_number" expression="^7777$" break="on-true">
+			          <action application="answer"/>
+    			      <action application="conference" data="7777@default"/>
+			          <action application="hangup"/>
+    		    </condition>
+
+##Play wav test
+	    <condition field="destination_number" expression="^(7000|7007)$" break="on-true">
+		      <action application="answer"/>
+		      <action application="playback" data="/etc/freeswitch/wav/conf-welcome.wav"/>
+		      <action application="sleep" data="300"/>
+  		<action application="hangup"/>
+
+##Test call
+    <extension name="testcall">
+      <condition field="destination_number" expression="^(13[34])$">
+        <!-- Звоним -->
+        <action application="bridge" data="user/$1@$${domain}"/>
+        <!-- Кладем трубку -->
+        <action application="hangup"/>
+      </condition>
+    </extension>
+
+##Release
+		<anti-action application="hangup" data="NO_ROUTE_DESTINATION"/>
+	    </condition>
+	</extension>
+    </context>
+</include>

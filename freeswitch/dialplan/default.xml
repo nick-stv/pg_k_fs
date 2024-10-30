@@ -1,0 +1,26 @@
+<include>
+    <context name="public">
+     
+##Confcall
+        <extension name="confcall-7777" continue="true">
+		        <condition field="destination_number" expression="^7777$" break="on-true">
+			          <action application="answer"/>
+                <action application="playback" data="/etc/freeswitch/wav/conf-alone.wav"/>
+    			      <action application="conference" data="7777@default"/>
+#			          <action application="hangup"/>
+    		    </condition>
+
+##Notification
+	    <condition field="destination_number" expression="^(700[0-9])$" break="on-true">
+    		<action application="answer"/>
+    		<action application="playback" data="/etc/freeswitch/wav/hold.wav"/>
+    		<action application="sleep" data="1500"/>
+     		<action application="hangup"/>
+
+##NO_ROUTE_DESTINATION
+    		<anti-action application="hangup" data="NO_ROUTE_DESTINATION"/>
+	    </condition>
+	</extension>
+  </context>
+</include>
+

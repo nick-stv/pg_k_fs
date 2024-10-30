@@ -1,0 +1,12 @@
+<streams>
+    <stream name="moh">
+        <source>
+            <file>/usr/share/freeswitch/sounds/en/us/callie/conference/music_on_hold.wav</file>
+        </source>
+    </stream>
+    <stream name="default">
+        <source>
+            <file>/usr/share/freeswitch/sounds/en/us/callie/conference/default_audio.wav</file>
+        </source>
+    </stream>
+</streams>

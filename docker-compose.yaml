@@ -1,0 +1,74 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: fs
+      POSTGRES_PASSWORD: fspwd
+      POSTGRES_DB: freeswitch
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./initdb:/postgres_data
+    networks:
+      voip_net:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "5432:5432"
+    restart: always
+
+  kamailio:
+    image: kamailio:latest
+    container_name: kamailio
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: postgres://fs:fspwd@172.20.0.10:5432/kamailio
+      DBENGINE: postgres
+      DBNAME: freeswitch
+      DBUSER: fs
+      DBPASS: fspwd
+      DBHOST: 172.20.0.10
+    volumes:
+       - ./kamailio:/etc/kamailio
+    networks:
+      voip_net:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+    restart: always
+
+  freeswitch:
+    image: freeswitch:latest
+    container_name: freeswitch
+    privileged: true
+    network_mode: "host"
+    depends_on:
+      - postgres
+      - kamailio
+    volumes:
+      - ./freeswitch/sip_profiles/internal.xml:/etc/freeswitch/sip_profiles/internal.xml
+      - ./freeswitch/vars.xml:/etc/freeswitch/vars.xml
+      - ./freeswitch/dialplan:/etc/freeswitch/dialplan
+      - ./freeswitch/directory:/etc/freeswitch/directory
+      - ./freeswitch/autoload_configs/conference.conf.xml:/etc/freeswitch/autoload_configs/conference.conf.xml
+      - ./freeswitch/autoload_configs/acl.conf.xml:/etc/freeswitch/autoload_configs/acl.conf.xml
+      - ./freeswitch/autoload_configs/switch.conf.xml:/etc/freeswitch/autoload_configs/switch.conf.xml
+      - ./freeswitch/wav/callie/:/usr/share/freeswitch/sounds/en/us/callie/
+      - ./freeswitch/wav/:/etc/freeswitch/wav
+#    networks:
+#      voip_net:
+#        ipv4_address: 172.20.0.30
+#    ports:
+#      - "5080:5060"
+#      - "5066:5066"
+#      - "7443:7443"
+#      - "16000-16050:16000-16050/udp"
+    restart: always
+
+networks:
+  voip_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
